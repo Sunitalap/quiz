@@ -6,45 +6,45 @@
   <title>json</title>
   <script>
 
-    var data = [
-      {
-        "no": 1,
-        "q": "quest_1",
-        "a": "answer_1"
-      },
-      {
-        "no": 2,
-        "q": "quest_2",
-        "a": "answer_2"
-      },
-      {
-        "no": 3,
-        "q": "quest_3",
-        "a": "answer_3"
-      }
-    ];
+    // var data = [
+    //   {
+    //     "no": 1,
+    //     "q": "quest_1",
+    //     "a": "answer_1"
+    //   },
+    //   {
+    //     "no": 2,
+    //     "q": "quest_2",
+    //     "a": "answer_2"
+    //   },
+    //   {
+    //     "no": 3,
+    //     "q": "quest_3",
+    //     "a": "answer_3"
+    //   }
+    // ];
 
     // var requestURL = 'https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json';
     // var requestURL = 'http://localhost:8080/data/quiz_test.json';
-    // var requestURL = 'http://localhost:8080/quiz_test.json';
+    var requestURL = './quiz.json';
 
-    // function getJson() {
-    //   var xmlhttp = new XMLHttpRequest();
+    function getJson() {
+      var xmlhttp = new XMLHttpRequest();
 
-    //   xmlhttp.onreadystatechange = function () {
-    //     if (xmlhttp.readyState == 4) {
-    //       if (xmlhttp.status == 200) {
-    //         var data = JSON.parse(xmlhttp.responseText);
-    //         console.log(data);
-    //       } else {
-    //       }
-    //     }
-    //   }
-    //   xmlhttp.open('GET', requestURL);
-    //   xmlhttp.send();
-    // }
+      xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4) {
+          if (xmlhttp.status == 200) {
+            var data = JSON.parse(xmlhttp.responseText);
+            console.log(data);
+          } else {
+          }
+        }
+      }
+      xmlhttp.open('GET', requestURL);
+      xmlhttp.send();
+    }
 
-    // getJson();
+    getJson();
 
   </script>
 </head>
