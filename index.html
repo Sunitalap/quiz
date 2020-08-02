@@ -76,10 +76,32 @@
 </body>
 
 <script>
+  const range_question = () => {
+    no_question_start = document.forms.range_question_form.no_question_start.value;
+    if (no_question_start >= 1 && no_question_start <= data.length) {
+      no_question_start = no_question_start - 1;
+    } else {
+      no_question_start = 0;
+      document.forms.range_question_form.no_question_start.value = no_question_start + 1;
+    }
+
+    no_question_finish = document.forms.range_question_form.no_question_finish.value;
+    if (no_question_finish >= 1 && no_question_finish <= data.length) {
+      no_question_finish = no_question_finish - 1;
+    } else {
+      no_question_finish = data.length - 1;
+      document.forms.range_question_form.no_question_finish.value = no_question_finish + 1;
+    }
+  }
+
   if (localStorage.getItem('quiz') !== null) {
     var _data = localStorage.getItem('quiz');
     data = JSON.parse(_data);
     document.getElementById('state').innerText = 'データは取得済みです';
+
+    document.forms.range_question_form.no_question_start.value = 1;
+    document.forms.range_question_form.no_question_finish.value = data.length;
+    range_question();
   }
 
   var form = document.forms.myform;
@@ -172,24 +194,6 @@
     finished_answer.shift();
     finished_answer_display.shift();
     document.getElementById('finished_no').innerText = finished_answer_display;
-  }
-
-  const range_question = () => {
-    no_question_start = document.forms.range_question_form.no_question_start.value;
-    if (no_question_start >= 1 && no_question_start <= data.length) {
-      no_question_start = no_question_start - 1;
-    } else {
-      no_question_start = 0;
-      document.forms.range_question_form.no_question_start.value = no_question_start + 1;
-    }
-
-    no_question_finish = document.forms.range_question_form.no_question_finish.value;
-    if (no_question_finish >= 1 && no_question_finish <= data.length) {
-      no_question_finish = no_question_finish - 1;
-    } else {
-      no_question_finish = data.length - 1;
-      document.forms.range_question_form.no_question_finish.value = no_question_finish + 1;
-    }
   }
 
 </script>
