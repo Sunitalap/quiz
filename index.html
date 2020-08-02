@@ -43,8 +43,8 @@
     // ];
 
     // var requestURL = 'https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json';
-    // var requestURL = 'http://localhost:8080/data/quiz_test.json';
-    var requestURL = './quiz.json';
+    // var requestURL = './quiz.json';
+    var requestURL = 'quiz.json';
 
     // function getJson() {
     const get_json = () => {
@@ -63,12 +63,15 @@
       xmlhttp.send();
     }
 
-    get_json();
+    // get_json();
 
   </script>
 </head>
 
 <body>
+  <form name="myform">
+    <input name="myfile" type="file" />
+  </form>
 
   <p>
     <button id="other_qustion" type="button" onclick="other_qustion();">他の</button>
@@ -93,6 +96,28 @@
 </body>
 
 <script>
+  var form = document.forms.myform;
+
+  form.myfile.addEventListener('change', function (e) {
+
+    var result = e.target.files[0];
+
+    //FileReaderのインスタンスを作成する
+    var reader = new FileReader();
+
+    //読み込んだファイルの中身を取得する
+    reader.readAsText(result);
+
+    //ファイルの中身を取得後に処理を行う
+    reader.addEventListener('load', function () {
+
+      //ファイルの中身をtextarea内に表示する
+      console.log(JSON.parse(reader.result));
+      data = JSON.parse(reader.result);
+
+    })
+  })
+
   var finished_answer = [];
   var _no = null;
   // console.log(data);
