@@ -28,13 +28,21 @@
     <input name="myfile" type="file" />
   </form>
 
-  <p>
-    <span id="state"></span>
-  </p>
+  <div id="state"></div>
+
+  <div style="margin-top: 20px;">
+    <form name="range_question_form">
+      出題範囲
+      <input type="number" min="1" max="99999" id="no_start" name="no_question_start">
+      &nbsp;〜&nbsp;
+      <input type="number" min="1" max="99999" id="no_finish" name="no_question_finish">
+      <button id="range_qustion" type="button" style="margin-top: 20px;" onclick="range_question();">範囲決定</button>
+    </form>
+  </div>
 
   <hr style="margin-top:20px;" />
   <p>
-    <button id="other_qustion" type="button" onclick="other_qustion();">出題</button>
+    <button id="other_question" type="button" onclick="other_question();">出題</button>
   </p>
 
   <p>
@@ -83,7 +91,6 @@
     reader.readAsText(result);
 
     reader.addEventListener('load', function () {
-      // console.log(JSON.parse(reader.result));
       localStorage.removeItem('quiz');
       data = JSON.parse(reader.result);
       localStorage.setItem('quiz', JSON.stringify(data));
@@ -95,15 +102,19 @@
   var _no = null;
 
   const _get_unfinished_no = () => {
-    if (data.length == finished_answer.length) {
+    // if (data.length == finished_answer.length) {
+    if ((no_question_finish - no_question_start + 1) == finished_answer.length) {
       alert('全て出題したので初期化します');
       finished_answer = [];
       finished_answer_display = [];
+      document.getElementById('finished_no').innerText = finished_answer_display;
     }
 
     find = false;
     while (find == false) {
-      _no_ = Math.floor(Math.random() * data.length);
+      // _no_ = Math.floor(Math.random() * data.length);
+      _no_ = Math.floor(Math.random() * (no_question_finish - no_question_start + 1)) + no_question_start;
+
       if (finished_answer.includes(_no_) == false) {
         find = true;
       };
@@ -121,7 +132,7 @@
     document.getElementById('finished_no').innerText = finished_answer_display;
   }
 
-  const other_qustion = () => {
+  const other_question = () => {
     document.getElementById('wrong_answer').style.visibility = 'hidden';
 
     _no = _get_unfinished_no();
@@ -161,6 +172,24 @@
     finished_answer.shift();
     finished_answer_display.shift();
     document.getElementById('finished_no').innerText = finished_answer_display;
+  }
+
+  const range_question = () => {
+    no_question_start = document.forms.range_question_form.no_question_start.value;
+    if (no_question_start >= 1 && no_question_start <= data.length) {
+      no_question_start = no_question_start - 1;
+    } else {
+      no_question_start = 0;
+      document.forms.range_question_form.no_question_start.value = no_question_start + 1;
+    }
+
+    no_question_finish = document.forms.range_question_form.no_question_finish.value;
+    if (no_question_finish >= 1 && no_question_finish <= data.length) {
+      no_question_finish = no_question_finish - 1;
+    } else {
+      no_question_finish = data.length - 1;
+      document.forms.range_question_form.no_question_finish.value = no_question_finish + 1;
+    }
   }
 
 </script>
