@@ -17,6 +17,7 @@
       }
 
       button {
+        width: 100%;
         font-size: 100%;
       }
     }
@@ -42,8 +43,6 @@
     //   }
     // ];
 
-    // var requestURL = 'https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json';
-    // var requestURL = './quiz.json';
     var requestURL = 'quiz.json';
 
     // function getJson() {
@@ -54,6 +53,7 @@
         if (xmlhttp.readyState == 4) {
           if (xmlhttp.status == 200) {
             data = JSON.parse(xmlhttp.responseText);
+            localStorage.setItem('quiz', data);
             // console.log(data);
           } else {
           }
@@ -74,7 +74,11 @@
   </form>
 
   <p>
-    <button id="other_qustion" type="button" onclick="other_qustion();">他の</button>
+    <span id="state"></span>
+  </p>
+
+  <p>
+    <button id="other_qustion" type="button" onclick="other_qustion();">出題</button>
   </p>
 
   <p>
@@ -93,32 +97,41 @@
     <span id="answer"></span>
   </p>
 
+  <hr style="margin-top:50px;" />
+  <p>
+    答え確認済み(同じ問題は出ません)
+    <button id="clear_finish" type="button" onclick="clear_finish();">クリア</button>
+    &nbsp;<span id="finished_no"></span>
+  </p>
+
 </body>
 
 <script>
+  if (localStorage.getItem('quiz') !== null) {
+    var _data = localStorage.getItem('quiz');
+    data = JSON.parse(_data);
+    document.getElementById('state').innerText = 'データは取得済みです';
+  }
+
   var form = document.forms.myform;
 
   form.myfile.addEventListener('change', function (e) {
 
     var result = e.target.files[0];
-
-    //FileReaderのインスタンスを作成する
     var reader = new FileReader();
-
-    //読み込んだファイルの中身を取得する
     reader.readAsText(result);
 
-    //ファイルの中身を取得後に処理を行う
     reader.addEventListener('load', function () {
-
-      //ファイルの中身をtextarea内に表示する
-      console.log(JSON.parse(reader.result));
+      // console.log(JSON.parse(reader.result));
+      localStorage.removeItem('quiz');
       data = JSON.parse(reader.result);
-
+      localStorage.setItem('quiz', JSON.stringify(data));
     })
   })
 
   var finished_answer = [];
+  var finished_answer_display = [];
+
   var _no = null;
   // console.log(data);
   // console.log(data.length);
@@ -128,6 +141,7 @@
     if (data.length == finished_answer.length) {
       alert('全て出題したので初期化します');
       finished_answer = [];
+      finished_answer_display = [];
     }
 
     find = false;
@@ -145,8 +159,10 @@
       return false;
     };
 
-    finished_answer.push(_no_);
+    finished_answer.unshift(_no_);
+    finished_answer_display.unshift(_no_ + 1);
     // console.log(finished_answer);
+    document.getElementById('finished_no').innerText = finished_answer_display;
   }
 
   const other_qustion = () => {
@@ -159,6 +175,15 @@
     document.getElementById('question').innerText = _question;
 
     document.getElementById('answer').innerText = '';
+  }
+
+  const clear_finish = () => {
+    finished_answer = [];
+    finished_answer_display = [];
+    document.getElementById('no').innerText = '';
+    document.getElementById('question').innerText = '';
+    document.getElementById('answer').innerText = '';
+    document.getElementById('finished_no').innerText = finished_answer_display;
   }
 
   const visible_answer = () => {
