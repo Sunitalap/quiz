@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang='ja'>
+
+<head>
+  <meta charset='UTF-8'>
+  <title>json</title>
+  <script>
+
+    var data = [
+      {
+        "no": 1,
+        "q": "quest_1",
+        "a": "answer_1"
+      },
+      {
+        "no": 2,
+        "q": "quest_2",
+        "a": "answer_2"
+      },
+      {
+        "no": 3,
+        "q": "quest_3",
+        "a": "answer_3"
+      }
+    ];
+
+    // var requestURL = 'https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json';
+    // var requestURL = 'http://localhost:8080/data/quiz_test.json';
+    // var requestURL = 'http://localhost:8080/quiz_test.json';
+
+    // function getJson() {
+    //   var xmlhttp = new XMLHttpRequest();
+
+    //   xmlhttp.onreadystatechange = function () {
+    //     if (xmlhttp.readyState == 4) {
+    //       if (xmlhttp.status == 200) {
+    //         var data = JSON.parse(xmlhttp.responseText);
+    //         console.log(data);
+    //       } else {
+    //       }
+    //     }
+    //   }
+    //   xmlhttp.open('GET', requestURL);
+    //   xmlhttp.send();
+    // }
+
+    // getJson();
+
+  </script>
+</head>
+
+<body>
+
+  <p>
+    <button id="other_qustion" type="button" onclick="other_qustion();">他の</button>
+  </p>
+
+  <p>
+    No.&nbsp;<span id="no"></span>
+  </p>
+
+  <p>
+    <span id="question"></span>
+  </p>
+
+  <p style="margin-top:50px;">
+    <button id="visible_answer" type="button" onclick="visible_answer();">答え</button>
+  </p>
+
+  <p>
+    <span id="answer"></span>
+  </p>
+
+</body>
+
+<script>
+  var finished_answer = [];
+  var _no = null;
+  // console.log(data);
+  // console.log(data.length);
+  // console.log(data[0].no, data[0].q, data[0].a);
+
+  const _get_unfinished_no = () => {
+    if (data.length == finished_answer.length) {
+      alert('全て出題したので初期化します');
+      finished_answer = [];
+    }
+
+    find = false;
+    while (find == false) {
+      _no_ = Math.floor(Math.random() * data.length);
+      if (finished_answer.includes(_no_) == false) {
+        find = true;
+      };
+    }
+    return _no_;
+  }
+
+  const _put_finished_no = (_no_) => {
+    if (finished_answer.includes(_no_) == true) {
+      return false;
+    };
+
+    finished_answer.push(_no_);
+    console.log(finished_answer);
+  }
+
+  const other_qustion = () => {
+    _no = _get_unfinished_no();
+
+    var _question = data[_no].no;
+    document.getElementById('no').innerText = _question;
+
+    var _question = data[_no].q;
+    document.getElementById('question').innerText = _question;
+
+    document.getElementById('answer').innerText = '';
+  }
+
+  const visible_answer = () => {
+    if (_no == null) {
+      return false;
+    }
+
+    var _answer = data[_no].a;
+    document.getElementById('answer').innerText = _answer;
+
+    _put_finished_no(_no);
+  }
+
+</script>
+
+</html>
