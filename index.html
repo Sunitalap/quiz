@@ -3,7 +3,6 @@
 
 <head>
   <meta charset="utf-8">
-  <!-- <meta name=”viewport” content=”width=device-width,initial-scale=1.0″> -->
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <title>Quiz</title>
@@ -22,50 +21,6 @@
       }
     }
   </style>
-
-  <script>
-
-    // var data = [
-    //   {
-    //     "no": 1,
-    //     "q": "quest_1",
-    //     "a": "answer_1"
-    //   },
-    //   {
-    //     "no": 2,
-    //     "q": "quest_2",
-    //     "a": "answer_2"
-    //   },
-    //   {
-    //     "no": 3,
-    //     "q": "quest_3",
-    //     "a": "answer_3"
-    //   }
-    // ];
-
-    var requestURL = 'quiz.json';
-
-    // function getJson() {
-    const get_json = () => {
-      var xmlhttp = new XMLHttpRequest();
-
-      xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState == 4) {
-          if (xmlhttp.status == 200) {
-            data = JSON.parse(xmlhttp.responseText);
-            localStorage.setItem('quiz', data);
-            // console.log(data);
-          } else {
-          }
-        }
-      }
-      xmlhttp.open('GET', requestURL);
-      xmlhttp.send();
-    }
-
-    // get_json();
-
-  </script>
 </head>
 
 <body>
@@ -137,11 +92,7 @@
 
   var finished_answer = [];
   var finished_answer_display = [];
-
   var _no = null;
-  // console.log(data);
-  // console.log(data.length);
-  // console.log(data[0].no, data[0].q, data[0].a);
 
   const _get_unfinished_no = () => {
     if (data.length == finished_answer.length) {
@@ -167,7 +118,6 @@
 
     finished_answer.unshift(_no_);
     finished_answer_display.unshift(_no_ + 1);
-    // console.log(finished_answer);
     document.getElementById('finished_no').innerText = finished_answer_display;
   }
 
