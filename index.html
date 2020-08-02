@@ -98,12 +98,17 @@
     <span id="answer"></span>
   </p>
 
+  <p style="margin-top:50px;">
+    <button id="wrong_answer" style="visibility:hidden;" type="button" onclick="wrong_answer();">間違えちまった</button>
+  </p>
+
   <hr style="margin-top:50px;" />
   <p>
     答え確認済み(同じ問題は出ません)
     <button id="clear_finish" type="button" onclick="clear_finish();">クリア</button>
-    &nbsp;<span id="finished_no"></span>
   </p>
+  <div id="finished_no" style="width:100%;word-wrap: break-word">
+  </div>
 
 </body>
 
@@ -167,6 +172,8 @@
   }
 
   const other_qustion = () => {
+    document.getElementById('wrong_answer').style.visibility = 'hidden';
+
     _no = _get_unfinished_no();
 
     var _question = data[_no].no;
@@ -194,8 +201,16 @@
 
     var _answer = data[_no].a;
     document.getElementById('answer').innerText = _answer;
+    document.getElementById('wrong_answer').style.visibility = 'visible';
+
 
     _put_finished_no(_no);
+  }
+
+  const wrong_answer = () => {
+    finished_answer.shift();
+    finished_answer_display.shift();
+    document.getElementById('finished_no').innerText = finished_answer_display;
   }
 
 </script>
