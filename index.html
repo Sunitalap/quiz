@@ -19,183 +19,185 @@
         width: 100%;
         font-size: 100%;
       }
+
+      .margin20 {
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <form name="myform">
-    <input name="myfile" type="file" />
+  <form name="question_form">
+    <input name="myfile" type="file">
+
+    <div id="state"></div>
+
+    <div class="margin20">
+      出題範囲
+      <input id="no_start" type="number" min="1" max="99999" name="no_question_start">
+      &nbsp;〜&nbsp;
+      <input id="no_finish" type="number" min="1" max="99999" name="no_question_finish">
+      <button id="range_qustion" type="button" style="margin-top: 20px;">範囲決定</button>
+    </div>
+
+    <hr class="margin20">
+    <div>
+      <button id="other_question" type="button">出題</button>
+      No.&nbsp;<span id="no"></span>
+      <div id="question" class="margin20"></div>
+    </div>
+
+    <div class="margin20">
+      <button id="visible_answer" type="button">答え</button>
+    </div>
+
+    <div id="answer"></div>
+
+    <div class="margin20">
+      <button id="wrong_answer" style="visibility: hidden;" type="button">間違えちまった</button>
+    </div>
+
+    <hr class="margin20">
+    <div>
+      答え確認済み(同じ問題は出ません)
+      <button id="clear_finish" type="button">クリア</button>
+      <div id="finished_no" style="width: 100%; word-wrap: break-word;" class="margin20"></div>
+    </div>
+
   </form>
 
-  <div id="state"></div>
+  <script>
+    var form = document.forms.question_form;
 
-  <div style="margin-top: 20px;">
-    <form name="range_question_form">
-      出題範囲
-      <input type="number" min="1" max="99999" id="no_start" name="no_question_start">
-      &nbsp;〜&nbsp;
-      <input type="number" min="1" max="99999" id="no_finish" name="no_question_finish">
-      <button id="range_qustion" type="button" style="margin-top: 20px;" onclick="range_question();">範囲決定</button>
-    </form>
-  </div>
+    form.myfile.addEventListener('change', function (e) {
+      var result = e.target.files[0];
+      var reader = new FileReader();
+      reader.readAsText(result);
 
-  <hr style="margin-top:20px;" />
-  <p>
-    <button id="other_question" type="button" onclick="other_question();">出題</button>
-  </p>
+      reader.addEventListener('load', function () {
+        localStorage.removeItem('quiz');
+        data = JSON.parse(reader.result);
+        localStorage.setItem('quiz', JSON.stringify(data));
+      })
+    });
 
-  <p>
-    No.&nbsp;<span id="no"></span>
-  </p>
+    const rangeQuestion = () => {
+      no_question_start = document.forms.question_form.no_question_start.value;
+      if (no_question_start >= 1 && no_question_start <= data.length) {
+        no_question_start = no_question_start - 1;
+      } else {
+        no_question_start = 0;
+        document.forms.question_form.no_question_start.value = no_question_start + 1;
+      }
 
-  <p>
-    <span id="question"></span>
-  </p>
-
-  <p style="margin-top:50px;">
-    <button id="visible_answer" type="button" onclick="visible_answer();">答え</button>
-  </p>
-
-  <p>
-    <span id="answer"></span>
-  </p>
-
-  <p style="margin-top:50px;">
-    <button id="wrong_answer" style="visibility:hidden;" type="button" onclick="wrong_answer();">間違えちまった</button>
-  </p>
-
-  <hr style="margin-top:50px;" />
-  <p>
-    答え確認済み(同じ問題は出ません)
-    <button id="clear_finish" type="button" onclick="clear_finish();">クリア</button>
-  </p>
-  <div id="finished_no" style="width:100%;word-wrap: break-word">
-  </div>
-
-</body>
-
-<script>
-  const range_question = () => {
-    no_question_start = document.forms.range_question_form.no_question_start.value;
-    if (no_question_start >= 1 && no_question_start <= data.length) {
-      no_question_start = no_question_start - 1;
-    } else {
-      no_question_start = 0;
-      document.forms.range_question_form.no_question_start.value = no_question_start + 1;
+      no_question_finish = document.forms.question_form.no_question_finish.value;
+      if (no_question_finish >= 1 && no_question_finish <= data.length) {
+        no_question_finish = no_question_finish - 1;
+      } else {
+        no_question_finish = data.length - 1;
+        document.forms.question_form.no_question_finish.value = no_question_finish + 1;
+      }
     }
 
-    no_question_finish = document.forms.range_question_form.no_question_finish.value;
-    if (no_question_finish >= 1 && no_question_finish <= data.length) {
-      no_question_finish = no_question_finish - 1;
-    } else {
-      no_question_finish = data.length - 1;
-      document.forms.range_question_form.no_question_finish.value = no_question_finish + 1;
+    form.range_qustion.addEventListener('click', rangeQuestion, false);
+
+    const otherQuestion = () => {
+      document.getElementById('wrong_answer').style.visibility = 'hidden';
+
+      _no = _get_unfinished_no();
+
+      var _question = data[_no].no;
+      document.getElementById('no').innerText = _question;
+
+      var _question = data[_no].q;
+      document.getElementById('question').innerText = _question;
+
+      document.getElementById('answer').innerText = '';
     }
-  }
 
-  if (localStorage.getItem('quiz') !== null) {
-    var _data = localStorage.getItem('quiz');
-    data = JSON.parse(_data);
-    document.getElementById('state').innerText = 'データは取得済みです';
+    form.other_question.addEventListener('click', otherQuestion, false);
 
-    document.forms.range_question_form.no_question_start.value = 1;
-    document.forms.range_question_form.no_question_finish.value = data.length;
-    range_question();
-  }
+    if (localStorage.getItem('quiz') !== null) {
+      var _data = localStorage.getItem('quiz');
+      data = JSON.parse(_data);
+      document.getElementById('state').innerText = 'データは取得済みです';
 
-  var form = document.forms.myform;
+      document.forms.question_form.no_question_start.value = 1;
+      document.forms.question_form.no_question_finish.value = data.length;
+      rangeQuestion();
+    }
 
-  form.myfile.addEventListener('change', function (e) {
+    var finished_answer = [];
+    var finished_answer_display = [];
+    var _no = null;
 
-    var result = e.target.files[0];
-    var reader = new FileReader();
-    reader.readAsText(result);
+    const _get_unfinished_no = () => {
+      // if (data.length == finished_answer.length) {
+      if ((no_question_finish - no_question_start + 1) == finished_answer.length) {
+        alert('全て出題したので初期化します');
+        finished_answer = [];
+        finished_answer_display = [];
+        document.getElementById('finished_no').innerText = finished_answer_display;
+      }
 
-    reader.addEventListener('load', function () {
-      localStorage.removeItem('quiz');
-      data = JSON.parse(reader.result);
-      localStorage.setItem('quiz', JSON.stringify(data));
-    })
-  })
+      find = false;
+      while (find === false) {
+        // _no_ = Math.floor(Math.random() * data.length);
+        _no_ = Math.floor(Math.random() * (no_question_finish - no_question_start + 1)) + no_question_start;
 
-  var finished_answer = [];
-  var finished_answer_display = [];
-  var _no = null;
+        if (finished_answer.includes(_no_) === false) {
+          find = true;
+        };
+      }
+      return _no_;
+    }
 
-  const _get_unfinished_no = () => {
-    // if (data.length == finished_answer.length) {
-    if ((no_question_finish - no_question_start + 1) == finished_answer.length) {
-      alert('全て出題したので初期化します');
-      finished_answer = [];
-      finished_answer_display = [];
+    const _put_finished_no = (_no_) => {
+      if (finished_answer.includes(_no_) === true) {
+        return false;
+      };
+
+      finished_answer.unshift(_no_);
+      finished_answer_display.unshift(_no_ + 1);
       document.getElementById('finished_no').innerText = finished_answer_display;
     }
 
-    find = false;
-    while (find == false) {
-      // _no_ = Math.floor(Math.random() * data.length);
-      _no_ = Math.floor(Math.random() * (no_question_finish - no_question_start + 1)) + no_question_start;
-
-      if (finished_answer.includes(_no_) == false) {
-        find = true;
-      };
-    }
-    return _no_;
-  }
-
-  const _put_finished_no = (_no_) => {
-    if (finished_answer.includes(_no_) == true) {
-      return false;
-    };
-
-    finished_answer.unshift(_no_);
-    finished_answer_display.unshift(_no_ + 1);
-    document.getElementById('finished_no').innerText = finished_answer_display;
-  }
-
-  const other_question = () => {
-    document.getElementById('wrong_answer').style.visibility = 'hidden';
-
-    _no = _get_unfinished_no();
-
-    var _question = data[_no].no;
-    document.getElementById('no').innerText = _question;
-
-    var _question = data[_no].q;
-    document.getElementById('question').innerText = _question;
-
-    document.getElementById('answer').innerText = '';
-  }
-
-  const clear_finish = () => {
-    finished_answer = [];
-    finished_answer_display = [];
-    document.getElementById('no').innerText = '';
-    document.getElementById('question').innerText = '';
-    document.getElementById('answer').innerText = '';
-    document.getElementById('finished_no').innerText = finished_answer_display;
-  }
-
-  const visible_answer = () => {
-    if (_no == null) {
-      return false;
+    const clearFinish = () => {
+      finished_answer = [];
+      finished_answer_display = [];
+      document.getElementById('no').innerText = '';
+      document.getElementById('question').innerText = '';
+      document.getElementById('answer').innerText = '';
+      document.getElementById('finished_no').innerText = finished_answer_display;
     }
 
-    var _answer = data[_no].a;
-    document.getElementById('answer').innerText = _answer;
-    document.getElementById('wrong_answer').style.visibility = 'visible';
+    form.clear_finish.addEventListener('click', clearFinish, false);
 
+    const visibleAnswer = () => {
+      if (_no === null) {
+        return false;
+      }
 
-    _put_finished_no(_no);
-  }
+      var _answer = data[_no].a;
+      document.getElementById('answer').innerText = _answer;
+      document.getElementById('wrong_answer').style.visibility = 'visible';
 
-  const wrong_answer = () => {
-    finished_answer.shift();
-    finished_answer_display.shift();
-    document.getElementById('finished_no').innerText = finished_answer_display;
-  }
+      _put_finished_no(_no);
+    }
 
-</script>
+    form.visible_answer.addEventListener('click', visibleAnswer, false);
+
+    const wrongAnswer = () => {
+      finished_answer.shift();
+      finished_answer_display.shift();
+      document.getElementById('finished_no').innerText = finished_answer_display;
+    }
+
+    form.wrong_answer.addEventListener('click', wrongAnswer, false);
+
+  </script>
+</body>
 
 </html>
