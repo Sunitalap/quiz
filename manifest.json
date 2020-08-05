@@ -1,7 +1,7 @@
 {
   "name": "QUIZ",
   "short_name": "QUIZ",
-  "theme_color": "#89b6ff",
+  "theme_color": "#AA3933",
   "background_color": "#ffffff",
   "display": "standalone",
   "Scope": "/quiz",
