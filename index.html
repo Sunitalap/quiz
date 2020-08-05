@@ -135,6 +135,17 @@
       box-shadow: 6px 0 25px rgba(0, 0, 0, .15);
     }
   </style>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => {
+          console.log('Service Worker Registered');
+        })
+        .catch(() => {
+          console.log('Service Worker not Registered');
+        });
+    }
+  </script>
 </head>
 
 <body>
