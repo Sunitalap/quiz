@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="apple-touch-icon" type="image/png" href="./apple-touch-icon-180x180.png">
   <link rel="icon" type="image/png" href="./icon-192x192.png">
-  <link rel="icon" href="./favicon.ico" />
+  <link rel="icon" href="./favicon.ico">
   <link rel="manifest" href="./manifest.json">
   <title>QUIZ</title>
 
@@ -38,6 +38,20 @@
     header {
       padding: 10px;
       /* background: skyblue; */
+    }
+
+    .header-margin20 {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      left: 10px;
+      right: 10px;
+    }
+
+    .header-dataclear {
+      position: absolute;
+      bottom: 10%;
+      left: 10px;
+      right: 10px;
     }
 
     #nav-drawer {
@@ -158,8 +172,12 @@
       <div id="nav-content">
         <form name="faile_select_form">
           <input name="myfile" type="file">
+          <div id="state"></div>
+          <hr class="header-margin20">
+          <div class="header-dataclear">
+            <button id="data_clear" type="button">全消去</button>
+          </div>
         </form>
-        <div id="state"></div>
       </div>
     </div>
   </header>
@@ -200,7 +218,7 @@
     </form>
   </div>
 
-  <footer class="version">Ver.2.0.2</footer>
+  <footer class="version">Ver.2.1.0</footer>
 
   <script>
     document.forms.faile_select_form.myfile.addEventListener('change', function (e) {
@@ -212,7 +230,19 @@
         localStorage.removeItem('quiz');
         data = JSON.parse(reader.result);
         localStorage.setItem('quiz', JSON.stringify(data));
+        load_quiz();
       })
+    });
+
+    document.forms.faile_select_form.data_clear.addEventListener('click', function (e) {
+      // 「OK」時の処理開始 ＋ 確認ダイアログの表示
+      if (window.confirm('QUIZアプリの全データを消去します\nよろしいですか?')) {
+        localStorage.clear();
+        window.alert('消去しました\nアプリをリロードします');
+        location.reload();
+      } else {
+        window.alert('キャンセルされました');
+      }
     });
 
     var form = document.forms.question_form;
@@ -253,15 +283,19 @@
 
     form.other_question.addEventListener('click', otherQuestion, false);
 
-    if (localStorage.getItem('quiz') !== null) {
-      var _data = localStorage.getItem('quiz');
-      data = JSON.parse(_data);
-      document.getElementById('state').innerText = 'データは取得済みです';
+    const load_quiz = () => {
+      if (localStorage.getItem('quiz') !== null) {
+        var _data = localStorage.getItem('quiz');
+        data = JSON.parse(_data);
+        document.getElementById('state').innerText = 'データは取得済みです';
 
-      document.forms.question_form.no_question_start.value = 1;
-      document.forms.question_form.no_question_finish.value = data.length;
-      rangeQuestion();
+        document.forms.question_form.no_question_start.value = 1;
+        document.forms.question_form.no_question_finish.value = data.length;
+        rangeQuestion();
+      }
     }
+
+    load_quiz();
 
     var finished_answer = [];
     var finished_answer_display = [];
@@ -270,7 +304,7 @@
     const _get_unfinished_no = () => {
       // if (data.length == finished_answer.length) {
       if ((no_question_finish - no_question_start + 1) == finished_answer.length) {
-        alert('全て出題したので初期化し、改めて出題します');
+        window.alert('全て出題したので初期化し、改めて出題します');
         finished_answer = [];
         finished_answer_display = [];
         document.getElementById('finished_no').innerText = finished_answer_display;
@@ -278,7 +312,6 @@
 
       find = false;
       while (find === false) {
-        // _no_ = Math.floor(Math.random() * data.length);
         _no_ = Math.floor(Math.random() * (no_question_finish - no_question_start + 1)) + no_question_start;
 
         if (finished_answer.includes(_no_) === false) {
