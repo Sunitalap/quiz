@@ -218,7 +218,7 @@
     </form>
   </div>
 
-  <footer class="version">Ver.2.1.1</footer>
+  <footer class="version">Ver.2.2.0</footer>
 
   <script>
     document.forms.faile_select_form.myfile.addEventListener('change', function (e) {
@@ -230,7 +230,9 @@
         localStorage.removeItem('quiz');
         data = JSON.parse(reader.result);
         localStorage.setItem('quiz', JSON.stringify(data));
-        loadQuiz();
+        // loadQuiz();
+        window.alert('データを読み込みました\nアプリをリロードします');
+        location.reload();
       })
     });
 
