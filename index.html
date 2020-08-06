@@ -218,7 +218,7 @@
     </form>
   </div>
 
-  <footer class="version">Ver.2.1.0</footer>
+  <footer class="version">Ver.2.1.1</footer>
 
   <script>
     document.forms.faile_select_form.myfile.addEventListener('change', function (e) {
@@ -230,7 +230,7 @@
         localStorage.removeItem('quiz');
         data = JSON.parse(reader.result);
         localStorage.setItem('quiz', JSON.stringify(data));
-        load_quiz();
+        loadQuiz();
       })
     });
 
@@ -270,7 +270,7 @@
     const otherQuestion = () => {
       document.getElementById('wrong_answer').style.visibility = 'hidden';
 
-      _no = _get_unfinished_no();
+      _no = _getUnfinishedNo();
 
       var _question = data[_no].no;
       document.getElementById('no').innerText = _question;
@@ -283,7 +283,7 @@
 
     form.other_question.addEventListener('click', otherQuestion, false);
 
-    const load_quiz = () => {
+    const loadQuiz = () => {
       if (localStorage.getItem('quiz') !== null) {
         var _data = localStorage.getItem('quiz');
         data = JSON.parse(_data);
@@ -295,13 +295,13 @@
       }
     }
 
-    load_quiz();
+    loadQuiz();
 
     var finished_answer = [];
     var finished_answer_display = [];
     var _no = null;
 
-    const _get_unfinished_no = () => {
+    const _getUnfinishedNo = () => {
       // if (data.length == finished_answer.length) {
       if ((no_question_finish - no_question_start + 1) == finished_answer.length) {
         window.alert('全て出題したので初期化し、改めて出題します');
@@ -321,7 +321,7 @@
       return _no_;
     }
 
-    const _put_finished_no = (_no_) => {
+    const _putFinishedNo = (_no_) => {
       if (finished_answer.includes(_no_) === true) {
         return false;
       };
@@ -351,7 +351,7 @@
       document.getElementById('answer').innerText = _answer;
       document.getElementById('wrong_answer').style.visibility = 'visible';
 
-      _put_finished_no(_no);
+      _putFinishedNo(_no);
     }
 
     form.visible_answer.addEventListener('click', visibleAnswer, false);
