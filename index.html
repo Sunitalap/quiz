@@ -10,7 +10,7 @@
   <link rel="manifest" href="./manifest.json">
   <title>QUIZ</title>
   <script>
-    var version = '3.1.2';
+    var version = '4.0.0';
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js')
@@ -63,10 +63,10 @@
         right: 10px;
       }
 
-      .header-button {
-        position: absolute;
-        left: 10px;
-        right: 10px;
+      .header-acrive-workbook {
+        /* position: absolute; */
+        /* margin-left: 10px; */
+        margin-right: 10px;
       }
 
       .header-dataclear {
@@ -193,12 +193,15 @@
       <div id="nav-content">
         <div id="version" class="version"></div>
         <form name="faile_select_form">
+          <div class="header-acrive-workbook">
+            「<span id="active_workbook"></span>」から出題中
+            <button id="range_qustion_clear" type="button" class="margin20">出題範囲初期化</button>
+            <hr class="header-margin20">
+          </div>
           <input name="myfile" type="file">
           <div id="state"></div>
+          <div id="workbook"></div>
           <hr class="header-margin20">
-          <div class="header-button">
-            <button id="range_qustion_clear" type="button">出題範囲初期化</button>
-          </div>
           <div class="header-dataclear">
             <button id="data_clear" type="button">全データを消去</button>
           </div>
@@ -209,7 +212,6 @@
 
   <div>
     <form name="question_form">
-
       <hr class="margin20">
       <div>
         <button id="other_question" type="button">出題</button>
@@ -239,8 +241,14 @@
   <!-- <footer class="version">Ver.2.2.0</footer> -->
 
   <script>
-    const GENRE = 'quiz';
+    var active_workbook;
+
     var sample_local_storage = {
+      active_workbook: "quiz",
+      workbook: [
+        "quiz",
+        "english"
+      ],
       quiz: {
         qa: [
           {
@@ -269,13 +277,27 @@
       reader.readAsText(result);
 
       reader.addEventListener('load', function () {
-        localStorage.removeItem(GENRE);
+        active_workbook = result.name.split('.')[0];
+        console.log(active_workbook);
+        localStorage.removeItem(active_workbook);
+        setListWorkbook(active_workbook);
         data = JSON.parse(reader.result);
-        setLocalStorage(GENRE, data, 0, data.length - 1, finished_answer);
+        setLocalStorage(active_workbook, data, 0, data.length - 1, finished_answer);
         window.alert('データを読み込みました\nアプリをリロードします');
         location.reload();
       })
     });
+
+    const setListWorkbook = (_workbook) => {
+      wb = JSON.parse(localStorage.getItem('workbook'));
+
+      if (!wb) { wb = []; };
+      if (wb.indexOf(_workbook) == -1) {
+        wb.push(_workbook);
+        wb.sort();
+        localStorage.setItem('workbook', JSON.stringify(wb));
+      }
+    }
 
     document.forms.faile_select_form.data_clear.addEventListener('click', function (e) {
       // 「OK」時の処理開始 ＋ 確認ダイアログの表示
@@ -288,9 +310,10 @@
       }
     });
 
-    const setLocalStorage = (genre, qa, no_question_start, no_question_finish, no_pass) => {
+    const setLocalStorage = (_active_workbook, qa, no_question_start, no_question_finish, no_pass) => {
       // console.log('set', no_question_start, no_question_finish, no_pass);
-      localStorage.setItem(genre, JSON.stringify({
+      localStorage.setItem('active_workbook', _active_workbook);
+      localStorage.setItem(_active_workbook, JSON.stringify({
         qa: qa,
         no_question_start: no_question_start,
         no_question_finish: no_question_finish,
@@ -306,14 +329,14 @@
       no_question_start = document.getElementById('no_start').value;
       no_question_finish = document.getElementById('no_finish').value;
       setRangeQuestion();
-      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
+      setLocalStorage(active_workbook, data, no_question_start, no_question_finish, finished_answer);
     }
 
     const rangeQuestionClear = () => {
       document.getElementById('no_start').value = 1;
       document.getElementById('no_finish').value = data.length;
       rangeQuestion();
-      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
+      setLocalStorage(active_workbook, data, no_question_start, no_question_finish, finished_answer);
     }
 
     const setRangeQuestion = () => {
@@ -356,12 +379,13 @@
     form.other_question.addEventListener('click', otherQuestion, false);
 
     const loadQuiz = () => {
+      active_workbook = localStorage.getItem('active_workbook');
       document.getElementById('version').innerText = 'Ver.' + version;
 
-      if (localStorage.getItem(GENRE) !== null) {
-        var _data = localStorage.getItem(GENRE);
+      if (localStorage.getItem(active_workbook) !== null) {
+        var _data = localStorage.getItem(active_workbook);
         data = JSON.parse(_data).qa;
-        document.getElementById('state').innerText = 'データは取得済みです';
+        document.getElementById('state').innerText = '以下のデータは取得済みです';
 
         // document.forms.question_form.no_question_start.value = 1;
         // document.forms.question_form.no_question_finish.value = data.length;
@@ -379,7 +403,20 @@
         // console.log(no_question_start, no_question_finish);
         setRangeQuestion();
         document.getElementById('no_question_max').innerText = data.length;
+        document.getElementById('active_workbook').innerText = active_workbook;
+
+        getWorkbook();
       }
+    }
+
+    const getWorkbook = () => {
+      var _wb = '';
+      var _workbook = JSON.parse(localStorage.getItem('workbook'));
+
+      _workbook.forEach((elem, index) => {
+        _wb = _wb + '<a href="#" onClick="javascipt:setActiveWorkbook(\'' + elem + '\'); return false;">' + elem + '</a><br>';
+      });
+      document.getElementById('workbook').innerHTML = _wb;
     }
 
     loadQuiz();
@@ -392,7 +429,7 @@
         finished_answer = [];
         finished_answer_display = [];
         document.getElementById('no_pass').innerText = finished_answer_display;
-        setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
+        setLocalStorage(active_workbook, data, no_question_start, no_question_finish, finished_answer);
       }
 
       find = false;
@@ -414,7 +451,7 @@
       finished_answer.unshift(_no_);
       finished_answer_display.unshift(_no_ + 1);
       document.getElementById('no_pass').innerText = finished_answer_display;
-      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
+      setLocalStorage(active_workbook, data, no_question_start, no_question_finish, finished_answer);
     }
 
     const clearFinish = () => {
@@ -424,7 +461,7 @@
       document.getElementById('question').innerText = '';
       document.getElementById('answer').innerText = '';
       document.getElementById('no_pass').innerText = finished_answer_display;
-      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
+      setLocalStorage(active_workbook, data, no_question_start, no_question_finish, finished_answer);
     }
 
     form.clear_finish.addEventListener('click', clearFinish, false);
@@ -447,10 +484,16 @@
       finished_answer.shift();
       finished_answer_display.shift();
       document.getElementById('no_pass').innerText = finished_answer_display;
-      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
+      setLocalStorage(active_workbook, data, no_question_start, no_question_finish, finished_answer);
     }
 
     form.wrong_answer.addEventListener('click', wrongAnswer, false);
+
+    const setActiveWorkbook = (_workbook) => {
+      alert('「' + _workbook + '」に切り替えます');
+      localStorage.setItem('active_workbook', _workbook);
+      location.reload();
+    }
 
   </script>
 </body>
