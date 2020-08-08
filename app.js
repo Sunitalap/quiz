@@ -1,10 +1,11 @@
 var http = require('http');
 var fs = require('fs');
 var express = require('express');
+var app = express();
 
 http.createServer(function (request, response) {
   response.writeHead(200, { 'Content-Type': 'text/plain' });
-
+  app.use(express.static(__dirname + '/favicons'));
   target = './index.html';
 
   fs.readFile(target, 'utf-8', function (err, data) {

@@ -9,6 +9,19 @@
   <link rel="icon" href="./favicon.ico">
   <link rel="manifest" href="./manifest.json">
   <title>QUIZ</title>
+  <script>
+    var version = '3.1.0';
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => {
+          console.log('Service Worker Registered');
+        })
+        .catch(() => {
+          console.log('Service Worker not Registered');
+        });
+    }
+  </script>
 
   <style>
     @media screen and (max-width: 1000px) {
@@ -37,7 +50,9 @@
       }
 
       header {
-        padding: 10px;
+        /* padding: 10px; */
+        padding-top: 10px;
+        padding-bottom: 10px;
         /* background: skyblue; */
       }
 
@@ -157,17 +172,6 @@
       box-shadow: 6px 0 25px rgba(0, 0, 0, .15);
     }
   </style>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(() => {
-          console.log('Service Worker Registered');
-        })
-        .catch(() => {
-          console.log('Service Worker not Registered');
-        });
-    }
-  </script>
 </head>
 
 <body>
@@ -177,14 +181,17 @@
       <label id="nav-open" for="nav-input"><span></span></label>
       <span>QUIZ</span>
       <div>
-        出題範囲(最大&nbsp;<span id="no_question_max"></span>)
+        出題範囲
         <input id="no_start" type="number" min="1" max="99999" name="no_question_start">
         〜
         <input id="no_finish" type="number" min="1" max="99999" name="no_question_finish">
+        (全<span id="no_question_max"></span>問)
         <button id="range_qustion" type="button" style="margin-top: 20px ;">範囲決定</button>
       </div>
       <label class="nav-unshown" id="nav-close" for="nav-input"></label>
+
       <div id="nav-content">
+        <div id="version" class="version"></div>
         <form name="faile_select_form">
           <input name="myfile" type="file">
           <div id="state"></div>
@@ -195,7 +202,6 @@
           <div class="header-dataclear">
             <button id="data_clear" type="button">全データを消去</button>
           </div>
-          <div class="version">Ver.3.0.1</div>
         </form>
       </div>
     </div>
@@ -203,14 +209,7 @@
 
   <div>
     <form name="question_form">
-      <!-- <div>
-        出題範囲
-        <input id="no_start" type="number" min="1" max="99999" name="no_question_start">
-        &nbsp;〜&nbsp;
-        <input id="no_finish" type="number" min="1" max="99999" name="no_question_finish">
-        <button id="range_qustion" type="button" style="margin-top: 20px;">範囲決定</button>
-      </div>
- -->
+
       <hr class="margin20">
       <div>
         <button id="other_question" type="button">出題</button>
@@ -357,6 +356,8 @@
     form.other_question.addEventListener('click', otherQuestion, false);
 
     const loadQuiz = () => {
+      document.getElementById('version').innerText = 'Ver.' + version;
+
       if (localStorage.getItem(GENRE) !== null) {
         var _data = localStorage.getItem(GENRE);
         data = JSON.parse(_data).qa;
