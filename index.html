@@ -26,32 +26,40 @@
       .version {
         position: absolute;
         bottom: 15px;
-        right: 15px;
+        left: 10px;
+        right: 10px;
+        text-align: center;
       }
 
       .margin20 {
         margin-top: 20px;
         margin-bottom: 20px;
       }
-    }
 
-    header {
-      padding: 10px;
-      /* background: skyblue; */
-    }
+      header {
+        padding: 10px;
+        /* background: skyblue; */
+      }
 
-    .header-margin20 {
-      margin-top: 20px;
-      margin-bottom: 20px;
-      left: 10px;
-      right: 10px;
-    }
+      .header-margin20 {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        left: 10px;
+        right: 10px;
+      }
 
-    .header-dataclear {
-      position: absolute;
-      bottom: 10%;
-      left: 10px;
-      right: 10px;
+      .header-button {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+      }
+
+      .header-dataclear {
+        position: absolute;
+        bottom: 10%;
+        left: 10px;
+        right: 10px;
+      }
     }
 
     #nav-drawer {
@@ -168,15 +176,26 @@
       <input id="nav-input" type="checkbox" class="nav-unshown">
       <label id="nav-open" for="nav-input"><span></span></label>
       <span>QUIZ</span>
+      <div>
+        出題範囲&nbsp;(設問数&nbsp;<span id="no_question_max"></span>)
+        <input id="no_start" type="number" min="1" max="99999" name="no_question_start">
+        &nbsp;〜&nbsp;
+        <input id="no_finish" type="number" min="1" max="99999" name="no_question_finish">
+        <button id="range_qustion" type="button" style="margin-top: 20px ;">範囲決定</button>
+      </div>
       <label class="nav-unshown" id="nav-close" for="nav-input"></label>
       <div id="nav-content">
         <form name="faile_select_form">
           <input name="myfile" type="file">
           <div id="state"></div>
           <hr class="header-margin20">
-          <div class="header-dataclear">
-            <button id="data_clear" type="button">全消去</button>
+          <div class="header-button">
+            <button id="range_qustion_clear" type="button">出題範囲初期化</button>
           </div>
+          <div class="header-dataclear">
+            <button id="data_clear" type="button">全データを消去</button>
+          </div>
+          <div class="version">Ver.3.0.0</div>
         </form>
       </div>
     </div>
@@ -184,14 +203,14 @@
 
   <div>
     <form name="question_form">
-      <div>
+      <!-- <div>
         出題範囲
         <input id="no_start" type="number" min="1" max="99999" name="no_question_start">
         &nbsp;〜&nbsp;
         <input id="no_finish" type="number" min="1" max="99999" name="no_question_finish">
         <button id="range_qustion" type="button" style="margin-top: 20px;">範囲決定</button>
       </div>
-
+ -->
       <hr class="margin20">
       <div>
         <button id="other_question" type="button">出題</button>
@@ -213,24 +232,47 @@
       <div>
         答え確認済み(同じ問題は出ません)
         <button id="clear_finish" type="button">クリア</button>
-        <div id="finished_no" style="width: 100%; word-wrap: break-word;" class="margin20"></div>
+        <div id="no_pass" style="width: 100%; word-wrap: break-word;" class="margin20"></div>
       </div>
     </form>
   </div>
 
-  <footer class="version">Ver.2.2.0</footer>
+  <!-- <footer class="version">Ver.2.2.0</footer> -->
 
   <script>
+    const GENRE = 'quiz';
+    var sample_local_storage = {
+      quiz: {
+        qa: [
+          {
+            no: "1",
+            q: "江戸時代の奉行所で",
+            a: "白州"
+          },
+          {
+            no: "3800",
+            q: "~",
+            a: "~"
+          }
+        ],
+        no_question_start: 0,
+        no_question_finish: 9,
+        no_pass: [3, 0, 1]
+      }
+    }
+
+    var finished_answer = [];
+    var finished_answer_display = [];
+
     document.forms.faile_select_form.myfile.addEventListener('change', function (e) {
       var result = e.target.files[0];
       var reader = new FileReader();
       reader.readAsText(result);
 
       reader.addEventListener('load', function () {
-        localStorage.removeItem('quiz');
+        localStorage.removeItem(GENRE);
         data = JSON.parse(reader.result);
-        localStorage.setItem('quiz', JSON.stringify(data));
-        // loadQuiz();
+        setLocalStorage(GENRE, data, 0, data.length - 1, finished_answer);
         window.alert('データを読み込みました\nアプリをリロードします');
         location.reload();
       })
@@ -247,27 +289,56 @@
       }
     });
 
+    const setLocalStorage = (genre, qa, no_question_start, no_question_finish, no_pass) => {
+      // console.log('set', no_question_start, no_question_finish, no_pass);
+      localStorage.setItem(genre, JSON.stringify({
+        qa: qa,
+        no_question_start: no_question_start,
+        no_question_finish: no_question_finish,
+        no_pass: no_pass
+      }));
+    }
+
     var form = document.forms.question_form;
 
     const rangeQuestion = () => {
-      no_question_start = document.forms.question_form.no_question_start.value;
+      // no_question_start = document.forms.question_form.no_question_start.value;
+      // no_question_finish = document.forms.question_form.no_question_finish.value;
+      no_question_start = document.getElementById('no_start').value;
+      no_question_finish = document.getElementById('no_finish').value;
+      setRangeQuestion();
+      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
+    }
+
+    const rangeQuestionClear = () => {
+      document.getElementById('no_start').value = 1;
+      document.getElementById('no_finish').value = data.length;
+      rangeQuestion();
+      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
+    }
+
+    const setRangeQuestion = () => {
       if (no_question_start >= 1 && no_question_start <= data.length) {
         no_question_start = no_question_start - 1;
       } else {
         no_question_start = 0;
-        document.forms.question_form.no_question_start.value = no_question_start + 1;
       }
+      // document.forms.question_form.no_question_start.value = no_question_start + 1;
+      document.getElementById('no_start').value = no_question_start + 1;
 
-      no_question_finish = document.forms.question_form.no_question_finish.value;
-      if (no_question_finish >= 1 && no_question_finish <= data.length) {
+      if (no_question_finish >= 1 && no_question_finish < data.length - 1) {
         no_question_finish = no_question_finish - 1;
       } else {
         no_question_finish = data.length - 1;
-        document.forms.question_form.no_question_finish.value = no_question_finish + 1;
       }
+      // document.forms.question_form.no_question_finish.value = no_question_finish + 1;
+      document.getElementById('no_finish').value = no_question_finish + 1;
     }
 
-    form.range_qustion.addEventListener('click', rangeQuestion, false);
+    // form.range_qustion.addEventListener('click', rangeQuestion, false);
+    document.getElementById('range_qustion').addEventListener('click', rangeQuestion, false);
+
+    document.forms.faile_select_form.range_qustion_clear.addEventListener('click', rangeQuestionClear, false);
 
     const otherQuestion = () => {
       document.getElementById('wrong_answer').style.visibility = 'hidden';
@@ -286,30 +357,41 @@
     form.other_question.addEventListener('click', otherQuestion, false);
 
     const loadQuiz = () => {
-      if (localStorage.getItem('quiz') !== null) {
-        var _data = localStorage.getItem('quiz');
-        data = JSON.parse(_data);
+      if (localStorage.getItem(GENRE) !== null) {
+        var _data = localStorage.getItem(GENRE);
+        data = JSON.parse(_data).qa;
         document.getElementById('state').innerText = 'データは取得済みです';
 
-        document.forms.question_form.no_question_start.value = 1;
-        document.forms.question_form.no_question_finish.value = data.length;
-        rangeQuestion();
+        // document.forms.question_form.no_question_start.value = 1;
+        // document.forms.question_form.no_question_finish.value = data.length;
+        document.getElementById('no_start').value = 1;
+        document.getElementById('no_finish').value = data.length;
+
+        finished_answer = JSON.parse(_data).no_pass;
+        finished_answer.forEach((elem, index) => {
+          finished_answer_display.push(elem + 1);
+        });
+        document.getElementById('no_pass').innerText = finished_answer_display;
+
+        no_question_start = JSON.parse(_data).no_question_start + 1;
+        no_question_finish = JSON.parse(_data).no_question_finish + 1;
+        // console.log(no_question_start, no_question_finish);
+        setRangeQuestion();
+        document.getElementById('no_question_max').innerText = data.length;
       }
     }
 
     loadQuiz();
 
-    var finished_answer = [];
-    var finished_answer_display = [];
     var _no = null;
 
     const _getUnfinishedNo = () => {
-      // if (data.length == finished_answer.length) {
       if ((no_question_finish - no_question_start + 1) == finished_answer.length) {
         window.alert('全て出題したので初期化し、改めて出題します');
         finished_answer = [];
         finished_answer_display = [];
-        document.getElementById('finished_no').innerText = finished_answer_display;
+        document.getElementById('no_pass').innerText = finished_answer_display;
+        setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
       }
 
       find = false;
@@ -330,7 +412,8 @@
 
       finished_answer.unshift(_no_);
       finished_answer_display.unshift(_no_ + 1);
-      document.getElementById('finished_no').innerText = finished_answer_display;
+      document.getElementById('no_pass').innerText = finished_answer_display;
+      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
     }
 
     const clearFinish = () => {
@@ -339,7 +422,8 @@
       document.getElementById('no').innerText = '';
       document.getElementById('question').innerText = '';
       document.getElementById('answer').innerText = '';
-      document.getElementById('finished_no').innerText = finished_answer_display;
+      document.getElementById('no_pass').innerText = finished_answer_display;
+      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
     }
 
     form.clear_finish.addEventListener('click', clearFinish, false);
@@ -361,7 +445,8 @@
     const wrongAnswer = () => {
       finished_answer.shift();
       finished_answer_display.shift();
-      document.getElementById('finished_no').innerText = finished_answer_display;
+      document.getElementById('no_pass').innerText = finished_answer_display;
+      setLocalStorage(GENRE, data, no_question_start, no_question_finish, finished_answer);
     }
 
     form.wrong_answer.addEventListener('click', wrongAnswer, false);
