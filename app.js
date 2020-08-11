@@ -1,20 +1,17 @@
-var http = require('http');
-var fs = require('fs');
-var express = require('express');
-var app = express();
+const express = require('express');
+const app = express();
+// パス指定用モジュール
+const path = require('path');
 
-// app.use('favicons', express.static(__dirname + '/favicons'));
+// 8080番ポートで待ちうける
+app.listen(8080, () => {
+  console.log('Running at Port 8080...');
+});
 
-http.createServer(function (request, response) {
-  // response.writeHead(200, { 'Content-Type': 'text/plain' });
-  target = './index.html';
+// 静的ファイルのルーティング
+app.use(express.static(path.join(__dirname, 'public')));
 
-  fs.readFile(target, 'utf-8', function (err, data) {
-    response.writeHead(200, { 'Content-Type': 'text/html' });
-    response.write(data);
-    response.end();
-  })
-}).listen(8080);
-
-// 起動ログ
-console.log('Server running at http://localhost:8080/');
+// その他のリクエストに対する404エラー
+app.use((req, res) => {
+  res.sendStatus(404);
+});
