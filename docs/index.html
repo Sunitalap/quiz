@@ -455,13 +455,15 @@
     }
 
     const clearFinish = () => {
-      finished_answer = [];
-      finished_answer_display = [];
-      document.getElementById('no').innerText = '';
-      document.getElementById('question').innerText = '';
-      document.getElementById('answer').innerText = '';
-      document.getElementById('no_pass').innerText = finished_answer_display;
-      setLocalStorage(active_workbook, data, no_question_start, no_question_finish, finished_answer);
+      if (confirm('really?')) {
+        finished_answer = [];
+        finished_answer_display = [];
+        document.getElementById('no').innerText = '';
+        document.getElementById('question').innerText = '';
+        document.getElementById('answer').innerText = '';
+        document.getElementById('no_pass').innerText = finished_answer_display;
+        setLocalStorage(active_workbook, data, no_question_start, no_question_finish, finished_answer);
+      }
     }
 
     form.clear_finish.addEventListener('click', clearFinish, false);
